@@ -1,9 +1,14 @@
 const express = require("express");
 const mongoose = require("mongoose");
-const app = express();
-require("dotenv").config({path: "./config/.env"});
+const helmet = require("helmet");
 
+// express settings
+const app = express();
 app.use(express.json()); 
+
+// security settings
+require("dotenv").config({path: "./config/.env"});
+app.use(helmet());
 
 
 const userRoutes = require("./routes/user");

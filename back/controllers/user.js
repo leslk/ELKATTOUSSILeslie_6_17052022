@@ -2,16 +2,17 @@ const User = require("../models/user");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const pwValidator = require("../services/pw-validator");
+const cryptoJS = require("crypto-js");
 
 exports.signup = (req, res, next) => {
+    const cryptedEmail = cryptoJS.HmacSHA256(req.body.email, "CRYPTO_JS_KEY").toString();
     const pwErrors = pwValidator.validate(req.body.password, {details: true});
     console.log(pwErrors);
     if (pwErrors.length === 0) {
-        console.log("password is valid");
         bcrypt.hash(req.body.password, 10)
         .then(hash => {
             const user = new User({
-                email: req.body.email,
+                email: cryptedEmail,
                 password: hash
             });
             user.save()
@@ -20,13 +21,13 @@ exports.signup = (req, res, next) => {
         })
         .catch(error => res.status(500).json({error}));
     } else {
-        console.log("invalid password");
         return res.status(400).json({error: pwErrors[0].message});
     }
 };
 
 exports.login = (req, res, next) => {
-    User.findOne({email: req.body.email})
+    const cryptedEmail = cryptoJS.HmacSHA256(req.body.email, "CRYPTO_JS_KEY").toString();
+    User.findOne({email: cryptedEmail})
     .then(user => {
         if(!user){
             return res.status(401).json({ error: "Utilisateur non trouvé !"});
