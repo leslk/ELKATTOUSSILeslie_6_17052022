@@ -13,6 +13,7 @@ app.use(helmet());
 
 
 const userRoutes = require("./routes/user");
+const sauceRoutes = require("./routes/sauce")
 
 mongoose.connect(process.env.MONGO_LOGIN,
   { useNewUrlParser: true,
@@ -27,7 +28,9 @@ app.use((req, res, next) => {
     next();
 });
 
-app.use(path.join(__dirname, "images"));
+app.use("/images", express.static(path.join(__dirname, "images")));
+
 app.use("/api/auth", userRoutes);
+app.use("/api/sauces", sauceRoutes);
 
 module.exports = app;
