@@ -5,9 +5,8 @@ const pwValidator = require("../services/pw-validator");
 const cryptoJS = require("crypto-js");
 
 exports.signup = (req, res, next) => {
-    const cryptedEmail = cryptoJS.HmacSHA256(req.body.email, "CRYPTO_JS_KEY").toString();
+    const cryptedEmail = cryptoJS.HmacSHA256(req.body.email, process.env.CRYPTO_JS_KEY).toString();
     const pwErrors = pwValidator.validate(req.body.password, {details: true});
-    console.log(pwErrors);
     if (pwErrors.length === 0) {
         bcrypt.hash(req.body.password, 10)
         .then(hash => {

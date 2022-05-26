@@ -1,6 +1,7 @@
 const express = require("express");
 const mongoose = require("mongoose");
 const helmet = require("helmet");
+const path = require("path");
 
 // express settings
 const app = express();
@@ -26,6 +27,7 @@ app.use((req, res, next) => {
     next();
 });
 
+app.use(path.join(__dirname, "images"));
 app.use("/api/auth", userRoutes);
 
 module.exports = app;

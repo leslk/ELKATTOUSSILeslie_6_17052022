@@ -8,7 +8,7 @@ passwordSchema
 .has().symbols()
 .has().uppercase()
 .has().lowercase()
-.has().digits(3)
+.has().digits()
 .has().not().spaces();
 
 module.exports = passwordSchema;
