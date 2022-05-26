@@ -1,15 +1,18 @@
 const express = require("express");
 const mongoose = require("mongoose");
 const app = express();
+require("dotenv").config({path: "./config/.env"});
+
 app.use(express.json()); 
+
 
 const userRoutes = require("./routes/user");
 
-mongoose.connect("mongodb+srv://leslk:m3m3R31942piq@cluster0.94ian.mongodb.net/?retryWrites=true&w=majority",
+mongoose.connect(process.env.MONGO_LOGIN,
   { useNewUrlParser: true,
     useUnifiedTopology: true })
   .then(() => console.log('Connexion à MongoDB réussie !'))
-  .catch(() => console.log('Connexion à MongoDB échouée !'));
+  .catch((error) => console.log(error));
 
 app.use((req, res, next) => {
     res.setHeader('Access-Control-Allow-Origin', '*');
