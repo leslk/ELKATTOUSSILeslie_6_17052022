@@ -5,9 +5,16 @@ const pwValidator = require("../services/pw-validator");
 const cryptoJS = require("crypto-js");
 
 exports.signup = (req, res, next) => {
-    const cryptedEmail = cryptoJS.HmacSHA256(req.body.email, process.env.CRYPTO_JS_KEY).toString();
+    const keyutf = cryptoJS.enc.Utf8.parse(process.env.CRYPTO_JS_KEY);
+    const iv = cryptoJS.enc.Base64.parse(process.env.CRYPTO_JS_KEY);
+    const cryptedEmail = cryptoJS.AES.encrypt(req.body.email, keyutf, {iv: iv}).toString();
+    console.log(cryptedEmail);
     const pwErrors = pwValidator.validate(req.body.password, {details: true});
-    if (pwErrors.length === 0) {
+    const emailRegex = /^([a-zA-Z0-9\.-_]+)@([a-zA-Z0-9-_]+)\.([a-z]{2,8})(\.[a-z]{2,8})?$/;
+    if (!emailRegex.test(req.body.email)) {
+        return res.status(400).json({error: "email incorrect"}); 
+    }
+    else if (pwErrors.length === 0) {
         bcrypt.hash(req.body.password, 10)
         .then(hash => {
             const user = new User({
@@ -20,12 +27,18 @@ exports.signup = (req, res, next) => {
         })
         .catch(error => res.status(500).json({error}));
     } else {
-        return res.status(400).json({error: pwErrors[0].message});
+        return res.status(400).json({error: pwErrors});
     }
 };
 
 exports.login = (req, res, next) => {
-    const cryptedEmail = cryptoJS.HmacSHA256(req.body.email, process.env.CRYPTO_JS_KEY).toString();
+    const keyutf = cryptoJS.enc.Utf8.parse(process.env.CRYPTO_JS_KEY);
+    const iv = cryptoJS.enc.Base64.parse(process.env.CRYPTO_JS_KEY);
+    const cryptedEmail = cryptoJS.AES.encrypt(req.body.email, keyutf, {iv: iv}).toString();
+
+    // const decryptedEmail = cryptoJS.AES.decrypt({ciphertext : cryptoJS.enc.Base64.parse(cryptedEmail)}, keyutf, {iv : iv});
+    // const dec = cryptoJS.enc.Utf8.stringify(decryptedEmail);
+
     User.findOne({email: cryptedEmail})
     .then(user => {
         if(!user){

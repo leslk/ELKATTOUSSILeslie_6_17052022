@@ -1,12 +1,12 @@
 const Sauce = require("../models/sauce");
 const fs = require("fs");
-const { json } = require("express");
+const jwt = require("jsonwebtoken");
 
 
 exports.createSauce = (req, res, next) => {
     let newSauce = req.body.sauce;
     if (typeof(newSauce) === "string") {
-        newSauce = JSON.parse(newSauce)
+        newSauce = JSON.parse(newSauce);
     }
     const sauce = new Sauce ({
         ...newSauce,
@@ -59,8 +59,14 @@ exports.updateSauce = (req, res, next) => {
 }
 
 exports.deleteSauce = (req, res, next) => {
+    const token = req.headers.authorization.split(" ")[1];
+    const decodedToken = jwt.verify(token, process.env.TOKEN_SECRET);
+    const userId = decodedToken.userId;
     Sauce.findOneAndDelete({_id: req.params.id})
     .then(sauce => {
+        if (sauce.userId != userId) {
+            return res.status(401).json("requête non autorisée !");
+        }
         const filename = sauce.imageUrl.split("/images/")[1];
         fs.unlink(__dirname + "/../images/" + filename, (err) => {
             if (err) {
