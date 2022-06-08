@@ -3,12 +3,12 @@ const multer = require("multer");
 const fs = require("fs");
 
 // Create images folder
-// fs.mkdir('../images', (err) => {
-//     if (err) {
-//         return console.error(err);
-//     }
-//     console.log('Dossier images créé !');
-// });
+fs.mkdir('./images', (err) => {
+    if (err) {
+        return console.error(err);
+    }
+    console.log('Dossier images créé !');
+});
 
 // Set files extensions
 const MIME_TYPES = {
