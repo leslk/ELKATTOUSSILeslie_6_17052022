@@ -7,11 +7,14 @@ const cryptoJS = require("crypto-js");
 
 // User signup
 exports.signup = (req, res, next) => {
-    // Check if the email and password are valid and set cryptage
+    // set cryptage for received email encryption
     const keyutf = cryptoJS.enc.Utf8.parse(process.env.CRYPTO_JS_KEY);
     const iv = cryptoJS.enc.Base64.parse(process.env.CRYPTO_JS_KEY);
+    // encrypt email
     const cryptedEmail = cryptoJS.AES.encrypt(req.body.email, keyutf, {iv: iv}).toString();
+    // Check if password is srtong enough
     const pwErrors = pwValidator.validate(req.body.password, {details: true});
+    // Check if email is valid with regex
     const emailRegex = /^([a-zA-Z0-9\.-_]+)@([a-zA-Z0-9-_]+)\.([a-z]{2,8})(\.[a-z]{2,8})?$/;
     if (!emailRegex.test(req.body.email)) {
         return res.status(400).json({error: "email incorrect"}); 
@@ -36,11 +39,13 @@ exports.signup = (req, res, next) => {
 
 // User login
 exports.login = (req, res, next) => {
-    // Set cryptage
+    // set cryptage for received email encryption
     const keyutf = cryptoJS.enc.Utf8.parse(process.env.CRYPTO_JS_KEY);
     const iv = cryptoJS.enc.Base64.parse(process.env.CRYPTO_JS_KEY);
+    // encrypt email
     const cryptedEmail = cryptoJS.AES.encrypt(req.body.email, keyutf, {iv: iv}).toString();
 
+    // Use this code if you want to decrypt an encrypted email
     // const decryptedEmail = cryptoJS.AES.decrypt({ciphertext : cryptoJS.enc.Base64.parse(cryptedEmail)}, keyutf, {iv : iv});
     // const dec = cryptoJS.enc.Utf8.stringify(decryptedEmail);
 
@@ -58,6 +63,7 @@ exports.login = (req, res, next) => {
             if(!valid) {
                 return res.status(401).json({ error: "Mot de passe incorrect !"});
             }
+            // Login success = return a json object with userId and token
             return res.status(200).json({
                 userId: user._id,
                 token: jwt.sign(

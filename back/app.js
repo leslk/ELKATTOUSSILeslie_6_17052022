@@ -15,7 +15,7 @@ const userRoutes = require("./routes/user");
 const sauceRoutes = require("./routes/sauce")
 
 // Connect to MongoDB
-mongoose.connect(process.env.MONGO_LOGIN,
+mongoose.connect("mongodb+srv://" + process.env.DB_USER + ":" + process.env.DB_PASSWORD + "@cluster0.94ian.mongodb.net/?retryWrites=true&w=majority",
   { useNewUrlParser: true,
     useUnifiedTopology: true })
   .then(() => console.log('Connexion à MongoDB réussie !'))
@@ -35,7 +35,7 @@ app.use((req, res, next) => {
     next();
 });
 
-// Route settings
+// Routes settings
 app.use("/images", express.static(path.join(__dirname, "images")));
 app.use("/api/auth", userRoutes);
 app.use("/api/sauces", sauceRoutes);

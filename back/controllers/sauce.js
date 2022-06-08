@@ -3,29 +3,26 @@ const Sauce = require("../models/sauce");
 const fs = require("fs");
 const jwt = require("jsonwebtoken");
 const regex = /^([a-zA-Z0-9,-\. !&]{3,250})$/;
-const numberRegex = /^[0-9]$/;
 
 // Create sauce
 exports.createSauce = (req, res, next) => {
     let newSauce = JSON.parse(req.body.sauce);
-    console.log(newSauce);
-    // Ckeck if input values before sending them to database
+    // Ckeck input values before sending them to database
      if (
         !regex.test(newSauce.name) ||
         !regex.test(newSauce.manufacturer) ||
         !regex.test(newSauce.description) ||
-        !regex.test(newSauce.mainPepper) ||
-        numberRegex.test(newSauce.heat)
+        !regex.test(newSauce.mainPepper)
       ){
         return res.status(400).json({error: "les champs contiennent des caractères non autorisés et/ou doivent contenir au minimum 3 caractères !"})
     }
-    // Create new sauce based on the sauceShcema created and save it to database
+    // Create new sauce based on the sauceShcema created, add image Url and save it to database
     const sauce = new Sauce ({
         ...newSauce,
         imageUrl: `${req.protocol}://${req.get('host')}/images/${req.file.filename}`,
     });
     sauce.save()
-    .then(() => res.status(201).json({message: "sauce Crée !"}))
+    .then(() => res.status(201).json({message: "sauce Créée !"}))
     .catch(error => res.status(400).json({ error }));
 };
 
@@ -55,7 +52,7 @@ exports.updateSauce = (req, res, next) => {
         Sauce.findOne({_id: req.params.id})
         .then((sauce) => {
             const filename = sauce.imageUrl.split('/images/')[1];
-            fs.unlinkSync(`images/${filename}`);
+            fs.unlinkSync(`images/${filename}`)
         })
         // Set the sauce object created before with request body sauce and request file
         // Request body sauce is a string that we have to set in JSON.
@@ -84,7 +81,7 @@ exports.updateSauce = (req, res, next) => {
 
 // Delete sauce
 exports.deleteSauce = (req, res, next) => {
-    // Check if the userId is the same as the userId that created sauce
+    // Decode token
     const token = req.headers.authorization.split(" ")[1];
     const decodedToken = jwt.verify(token, process.env.TOKEN_SECRET);
     const userId = decodedToken.userId;
