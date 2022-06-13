@@ -2,20 +2,10 @@
 const Sauce = require("../models/sauce");
 const fs = require("fs");
 const jwt = require("jsonwebtoken");
-const regex = /^([a-zA-Z0-9,-\. !&]{3,250})$/;
 
 // Create sauce
 exports.createSauce = (req, res, next) => {
     let newSauce = JSON.parse(req.body.sauce);
-    // Ckeck input values before sending them to database
-     if (
-        !regex.test(newSauce.name) ||
-        !regex.test(newSauce.manufacturer) ||
-        !regex.test(newSauce.description) ||
-        !regex.test(newSauce.mainPepper)
-      ){
-        return res.status(400).json({error: "les champs contiennent des caractères non autorisés et/ou doivent contenir au minimum 3 caractères !"})
-    }
     // Create new sauce based on the sauceShcema created, add image Url and save it to database
     const sauce = new Sauce ({
         ...newSauce,
