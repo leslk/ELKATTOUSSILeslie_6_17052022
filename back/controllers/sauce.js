@@ -87,18 +87,18 @@ exports.deleteSauce = (req, res, next) => {
     const userId = decodedToken.userId;
     // get sauce in database by ID and delete it unless the userId is not matching
     // also delete image from image folder
-    Sauce.findOneAndDelete({_id: req.params.id})
+    Sauce.findOne({_id: req.params.id})
     .then(sauce => {
         if (sauce.userId != userId) {
             return res.status(401).json("requête non autorisée !");
         }
         const filename = sauce.imageUrl.split("/images/")[1];
         fs.unlink(__dirname + "/../images/" + filename, (err) => {
-            if (err) {
-               return res.status(500).json({error: error});
-            }
-            return res.status(200).json({message: "Objet supprimé !"})
-        });   
+            Sauce.deleteOne({ _id: req.params.id })
+            .then(() => res.status(200).json({ message: "Sauce supprimée !"}))
+            .catch(error => res.status(400).json({ error: error })); 
+        })
+          
     })
     .catch(error => res.status(500).json({error: error}));
 };
