@@ -1,14 +1,20 @@
 // Requires
 const multer = require("multer");
 const fs = require("fs");
-
+const imageDir = "./images";
 // Create images folder
-fs.mkdir('./images', (err) => {
-    if (err) {
-        return console.error(err);
-    }
-    console.log('Dossier images créé !');
-});
+
+if (fs.existsSync(imageDir)) {
+    console.log("Dossier image déjà créé")
+} else {
+    fs.mkdir('./images', (err) => {
+        if (err) {
+            return console.error(err);
+        }
+        console.log('Dossier images créé !');
+    });
+}
+
 
 // Set files extensions
 const MIME_TYPES = {
